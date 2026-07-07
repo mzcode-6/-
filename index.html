@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Маркировка — тренажёр</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  body { margin: 0; }
+  * { box-sizing: border-box; }
+
+  .page {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(1100px 700px at 18% 10%, oklch(97% 0.025 70) 0%, transparent 60%),
+      radial-gradient(1000px 800px at 85% 95%, oklch(94% 0.035 45) 0%, transparent 55%),
+      linear-gradient(160deg, oklch(96% 0.018 68) 0%, oklch(92% 0.03 48) 100%);
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 24px;
+  }
+
+  .card {
+    animation: cardIn 0.38s cubic-bezier(0.2,0.8,0.2,1);
+    width: min(420px, 100%);
+    background: oklch(99% 0.008 75);
+    border-radius: 28px;
+    box-shadow: 0 24px 60px oklch(32% 0.03 45 / 0.16), 0 2px 8px oklch(32% 0.03 45 / 0.08);
+  }
+
+  .card--quiz {
+    padding: 48px 40px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .card--instruction {
+    width: min(440px, 100%);
+    padding: 44px 40px 36px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: oklch(60% 0.1 55);
+    margin-bottom: 14px;
+  }
+
+  .item-name {
+    font-family: 'Lora', serif;
+    font-weight: 700;
+    font-size: 38px;
+    line-height: 1.15;
+    color: oklch(27% 0.035 50);
+    margin: 0 0 22px;
+  }
+
+  .shelf-life {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: oklch(94% 0.028 60);
+    border-radius: 16px;
+    padding: 16px 28px;
+    margin-bottom: 34px;
+  }
+  .shelf-life .value {
+    font-family: 'Lora', serif;
+    font-weight: 600;
+    font-size: 26px;
+    color: oklch(32% 0.04 50);
+    letter-spacing: 0.01em;
+  }
+  .shelf-life .label {
+    font-size: 12.5px;
+    color: oklch(48% 0.025 55);
+  }
+
+  .prompt {
+    font-size: 14px;
+    color: oklch(45% 0.02 55);
+    margin-bottom: 22px;
+  }
+
+  .choices {
+    display: flex;
+    gap: 28px;
+  }
+  .choice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .choice-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .choice-btn:active { transform: scale(0.96); }
+  .choice-btn--correct { background: oklch(93% 0.06 150); }
+  .choice-btn--correct:hover { background: oklch(89% 0.08 150); transform: scale(1.06); }
+  .choice-btn--wrong { background: oklch(93% 0.06 25); }
+  .choice-btn--wrong:hover { background: oklch(89% 0.08 25); transform: scale(1.06); }
+  .choice-label {
+    font-size: 12px;
+    color: oklch(50% 0.02 55);
+  }
+
+  .instruction-title {
+    font-family: 'Lora', serif;
+    font-weight: 700;
+    font-size: 26px;
+    line-height: 1.25;
+    color: oklch(27% 0.035 50);
+    margin: 0 0 16px;
+  }
+  .instruction-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: oklch(38% 0.02 55);
+    margin: 0 0 12px;
+  }
+  .instruction-text:last-of-type { margin-bottom: 30px; }
+
+  .primary-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 16px;
+    background: oklch(30% 0.03 50);
+    color: oklch(98% 0.005 80);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .primary-btn:hover { background: oklch(24% 0.03 50); transform: translateY(-1px); }
+  .primary-btn:active { transform: translateY(0); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div id="app"></div>
+</div>
+
+<script>
+  // Каждый пункт — то, что нужно промаркировать, и корректный срок годности,
+  // который должен стоять на этикетке. Значения ниже условные — замените
+  // на актуальные сроки вашего заведения.
+  var ITEMS = [
+    { name: 'Сырная пена', shelfLife: '5–10', unit: 'срок годности на этикетке' },
+    { name: 'Мокко мусс', shelfLife: '5–10', unit: 'срок годности на этикетке' }
+  ];
+
+  var state = { index: 0, screen: 'quiz' };
+
+  function render() {
+    var app = document.getElementById('app');
+    var item = ITEMS[state.index];
+    var key = state.screen + '-' + state.index;
+
+    var card = document.createElement('div');
+    card.className = 'card ' + (state.screen === 'quiz' ? 'card--quiz' : 'card--instruction');
+    card.setAttribute('data-key', key);
+
+    if (state.screen === 'quiz') {
+      card.innerHTML =
+        '<div class="eyebrow">Маркировка</div>' +
+        '<h1 class="item-name"></h1>' +
+        '<div class="shelf-life">' +
+          '<div class="value"></div>' +
+          '<div class="label"></div>' +
+        '</div>' +
+        '<div class="prompt">Промаркировали верно?</div>' +
+        '<div class="choices">' +
+          '<div class="choice">' +
+            '<button class="choice-btn choice-btn--correct" aria-label="Верно">' +
+              '<svg width="28" height="28" viewBox="0 0 24 24" fill="none">' +
+                '<path d="M4 12.5L9.5 18L20 6" stroke="oklch(48% 0.14 150)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>' +
+              '</svg>' +
+            '</button>' +
+            '<div class="choice-label">Верно</div>' +
+          '</div>' +
+          '<div class="choice">' +
+            '<button class="choice-btn choice-btn--wrong" aria-label="Не уверен(а)">' +
+              '<svg width="26" height="26" viewBox="0 0 24 24" fill="none">' +
+                '<path d="M6 6L18 18M18 6L6 18" stroke="oklch(50% 0.19 25)" stroke-width="3" stroke-linecap="round"></path>' +
+              '</svg>' +
+            '</button>' +
+            '<div class="choice-label">Не уверен(а)</div>' +
+          '</div>' +
+        '</div>';
+
+      card.querySelector('.item-name').textContent = item.name;
+      card.querySelector('.value').textContent = item.shelfLife;
+      card.querySelector('.label').textContent = item.unit;
+
+      card.querySelector('.choice-btn--correct').addEventListener('click', function () {
+        state = { index: (state.index + 1) % ITEMS.length, screen: 'quiz' };
+        render();
+      });
+      card.querySelector('.choice-btn--wrong').addEventListener('click', function () {
+        state = { index: state.index, screen: 'instruction' };
+        render();
+      });
+    } else {
+      card.innerHTML =
+        '<div class="eyebrow">Подсказка</div>' +
+        '<h2 class="instruction-title">Как правильно промаркировать</h2>' +
+        '<p class="instruction-text">На этикетке указывают дату и время изготовления, а также дату и время, до которых десерт годен к продаже. Стикер клеят на крышку или боковую стенку контейнера так, чтобы его было видно, не открывая упаковку.</p>' +
+        '<p class="instruction-text">Если срок годности указан неверно, продукт могут списать раньше времени или, наоборот, продать просроченным. Точная маркировка защищает и гостя, и заведение.</p>' +
+        '<button class="primary-btn">Всё понятно</button>';
+
+      card.querySelector('.primary-btn').addEventListener('click', function () {
+        state = { index: (state.index + 1) % ITEMS.length, screen: 'quiz' };
+        render();
+      });
+    }
+
+    app.replaceChildren(card);
+  }
+
+  render();
+</script>
+</body>
+</html>
