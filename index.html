@@ -176,6 +176,34 @@
   .primary-btn:hover { background: oklch(24% 0.03 50); transform: translateY(-1px); }
   .primary-btn:active { transform: translateY(0); }
 
+  .done-icon {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: oklch(58% 0.15 150);
+    box-shadow: 0 10px 24px oklch(58% 0.15 150 / 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 26px;
+  }
+  .done-title {
+    font-family: 'Lora', serif;
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 1.25;
+    color: oklch(27% 0.035 50);
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+  .done-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: oklch(42% 0.02 55);
+    margin: 0 0 30px;
+    max-width: 34ch;
+  }
+
   .back-btn {
     position: fixed;
     top: 24px;
@@ -237,7 +265,7 @@
   // напитка (остаток от его приготовления) — маркируются только в часы работы
   // кофейни, 10:00-22:00. Всё остальное — заготовки/перетаривание — можно
   // маркировать и в другое время, если срок хранения <= 72ч.
-  var DRINK_ONLY_ROWS = [9, 10, 11, 41];
+  var DRINK_ONLY_ROWS = [9, 10, 11, 14, 15, 16, 41];
 
   // Первый рубеж — маркировка, при которой продукт спишется сегодня в конце дня
   // (только дата подбирается по сроку хранения; время фиксировано правилом ниже).
@@ -296,12 +324,34 @@
 
   function render() {
     var app = document.getElementById('app');
-    var item = ITEMS[state.index];
+    var item = state.screen !== 'done' ? ITEMS[state.index] : null;
     var key = state.screen + '-' + state.index;
 
     var card = document.createElement('div');
-    card.className = 'card ' + (state.screen === 'quiz' ? 'card--quiz' : 'card--instruction');
+    card.className = 'card ' + (state.screen === 'instruction' ? 'card--instruction' : 'card--quiz');
     card.setAttribute('data-key', key);
+
+    if (state.screen === 'done') {
+      card.innerHTML =
+        '<div class="done-icon">' +
+          '<svg width="34" height="34" viewBox="0 0 24 24" fill="none">' +
+            '<path d="M4 12.5L9.5 18L20 6" stroke="oklch(98% 0.01 150)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>' +
+          '</svg>' +
+        '</div>' +
+        '<h1 class="done-title">Бар полностью промаркирован!</h1>' +
+        '<p class="done-text">Отлично. Теперь попроси проверить менеджера, на всякий случай.</p>' +
+        '<button class="primary-btn">Проверить снова</button>';
+
+      card.querySelector('.primary-btn').addEventListener('click', function () {
+        navHistory = [];
+        state = { index: 0, screen: 'quiz' };
+        render();
+      });
+
+      app.replaceChildren(card);
+      document.getElementById('backBtn').disabled = navHistory.length === 0;
+      return;
+    }
 
     if (state.screen === 'quiz') {
       var range = computeRange(item, new Date());
@@ -354,12 +404,19 @@
       card.querySelector('.label').textContent = chipLabel;
 
       function next() {
-        goForward({ index: (state.index + 1) % ITEMS.length, screen: 'quiz' });
+        if (state.index === ITEMS.length - 1) {
+          goForward({ index: state.index, screen: 'done' });
+        } else {
+          goForward({ index: state.index + 1, screen: 'quiz' });
+        }
       }
       card.querySelector('.choice-btn--correct').addEventListener('click', next);
       card.querySelector('.choice-btn--absent').addEventListener('click', next);
       card.querySelector('.choice-btn--wrong').addEventListener('click', function () {
-        goForward({ index: state.index, screen: 'instruction' });
+        // Подсказка — не отдельная "страница": не попадает в историю переходов,
+        // назад с неё или после её закрытия ведёт к прошлому товару, а не к ней самой.
+        state = { index: state.index, screen: 'instruction' };
+        render();
       });
     } else {
       card.innerHTML =
@@ -380,7 +437,8 @@
       }
 
       card.querySelector('.primary-btn').addEventListener('click', function () {
-        goForward({ index: (state.index + 1) % ITEMS.length, screen: 'quiz' });
+        state = { index: state.index, screen: 'quiz' };
+        render();
       });
     }
 
