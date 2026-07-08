@@ -395,42 +395,45 @@
   // маркировать и в другое время, если срок хранения <= 72ч.
   var DRINK_ONLY_ROWS = [9, 10, 11, 14, 15, 16, 41];
 
-  // Первый рубеж — маркировка, при которой продукт спишется сегодня в конце дня
-  // (только дата подбирается по сроку хранения; время фиксировано правилом ниже).
-  // Второй рубеж — сегодняшняя дата (срок > 72ч) или фиксированные 10:30 (срок <= 72ч):
-  // кофейня открывается в 10:00, поэтому второй рубеж больше не привязан к
-  // текущему времени устройства.
+  // Срок > 72ч (формат дата.месяц.год): день, указанный на маркировке, сам
+  // считается первым днём хранения — поэтому нижняя граница на день позже
+  // простого вычитания срока от конца дня. Верхняя граница — сегодняшняя дата.
   //
-  // Срок <= 72ч (формат дата.час.минута): маркировка должна быть такой, чтобы
-  // позиция не считалась просроченной как минимум сегодня в 19:00 — это и
-  // "конец дня" в контексте тренажёра, с запасом до закрытия. Отсюда два условия
-  // для нижней границы:
-  //  - она не может быть раньше открытия (10:00 — под конкретный напиток,
-  //    8:00 — заготовка/перетаривание);
-  //  - она не может быть позже (19:00 − срок хранения), иначе позиция спишется
-  //    раньше 19:00.
-  // Берём более позднее (более строгое) из этих двух значений — сегодняшним
-  // числом. Верхняя граница — фиксированные 10:30, но не раньше нижней.
+  // Срок <= 72ч (формат дата.час.минута): нижняя граница — время открытия
+  // (10:00 — под конкретный напиток, 8:00 — заготовка/перетаривание), сегодня.
+  // Если этого времени недостаточно, чтобы позиция дожила минимум до 19:00
+  // сегодня, и при этом более позднюю (безопасную) маркировку ещё можно уложить
+  // до фиксированной верхней границы 10:30 — берём её; иначе (совсем короткий
+  // срок хранения) остаёмся на времени открытия — более узкое окно тут физически
+  // недостижимо, и это не ошибка, а особенность быстрооборачиваемой позиции.
+  // Верхняя граница всегда фиксированные 10:30, независимо от реального времени.
   function computeRange(item, now) {
     if (item.shelfHours == null) return null;
 
     if (item.markingFormat === 'date') {
       var endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
       var lowerRaw = new Date(endOfToday.getTime() - item.shelfHours * 3600 * 1000);
-      return { lower: fmtDate(lowerRaw), upper: fmtDate(now) };
+      var lower = new Date(lowerRaw.getFullYear(), lowerRaw.getMonth(), lowerRaw.getDate() + 1);
+      return { lower: fmtDate(lower), upper: fmtDate(now) };
     }
 
     var isDrinkOnly = DRINK_ONLY_ROWS.indexOf(item.row) !== -1;
     var openingHour = isDrinkOnly ? 10 : 8;
     var opening = new Date(now.getFullYear(), now.getMonth(), now.getDate(), openingHour, 0, 0, 0);
-    var cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 19, 0, 0, 0);
-    var latestSafe = new Date(cutoff.getTime() - item.shelfHours * 3600 * 1000);
-    var lower = latestSafe.getTime() > opening.getTime() ? latestSafe : opening;
-
     var fixedUpper = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 30, 0, 0);
-    var upper = fixedUpper.getTime() > lower.getTime() ? fixedUpper : lower;
 
-    return { lower: fmtDateTime(lower), upper: fmtDateTime(upper) };
+    var lower = opening;
+    if (opening.getTime() + item.shelfHours * 3600 * 1000 < cutoff19(now)) {
+      var latestSafe = new Date(cutoff19(now).getTime() - item.shelfHours * 3600 * 1000);
+      if (latestSafe.getTime() > opening.getTime() && latestSafe.getTime() <= fixedUpper.getTime()) {
+        lower = latestSafe;
+      }
+    }
+
+    return { lower: fmtDateTime(lower), upper: fmtDateTime(fixedUpper) };
+  }
+  function cutoff19(now) {
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 19, 0, 0, 0);
   }
 
   function normalizeTemp(t) {
