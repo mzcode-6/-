@@ -224,6 +224,115 @@
   .back-btn:hover { transform: scale(1.06); }
   .back-btn:active { transform: scale(0.96); }
   .back-btn[disabled] { opacity: 0.35; cursor: default; pointer-events: none; }
+
+  .progress-badge {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: oklch(99% 0.008 75);
+    box-shadow: 0 6px 18px oklch(32% 0.03 45 / 0.14), 0 1px 4px oklch(32% 0.03 45 / 0.08);
+    font-size: 13px;
+    font-weight: 600;
+    color: oklch(45% 0.025 55);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+    z-index: 10;
+  }
+
+  .report-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 9px 18px;
+    border-radius: 999px;
+    border: none;
+    background: oklch(99% 0.008 75 / 0.85);
+    box-shadow: 0 6px 18px oklch(32% 0.03 45 / 0.12), 0 1px 4px oklch(32% 0.03 45 / 0.07);
+    font-size: 12.5px;
+    color: oklch(48% 0.025 55);
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+    z-index: 10;
+  }
+  .report-btn:hover { background: oklch(96% 0.01 75); transform: translateX(-50%) scale(1.04); }
+  .report-btn:active { transform: translateX(-50%) scale(0.97); }
+
+  .report-overlay {
+    position: fixed;
+    inset: 0;
+    background: oklch(20% 0.02 50 / 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 20;
+  }
+  .report-overlay[hidden] { display: none; }
+  .report-dialog {
+    width: min(420px, 100%);
+    background: oklch(99% 0.008 75);
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 24px 60px oklch(32% 0.03 45 / 0.2);
+  }
+  .report-title {
+    font-family: 'Lora', serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: oklch(27% 0.035 50);
+    margin: 0 0 6px;
+  }
+  .report-page {
+    font-size: 12.5px;
+    color: oklch(55% 0.03 55);
+    margin: 0 0 16px;
+  }
+  .report-textarea {
+    width: 100%;
+    min-height: 110px;
+    border-radius: 14px;
+    border: 1px solid oklch(85% 0.02 60);
+    padding: 12px 14px;
+    font: inherit;
+    font-size: 14.5px;
+    color: oklch(30% 0.02 50);
+    resize: vertical;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+  }
+  .report-textarea:focus { outline: 2px solid oklch(60% 0.1 55); outline-offset: 1px; }
+  .report-actions { display: flex; gap: 12px; }
+  .report-cancel {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    background: oklch(93% 0.012 70);
+    color: oklch(40% 0.02 55);
+    font-size: 14.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .report-send {
+    flex: 1.4;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    background: oklch(30% 0.03 50);
+    color: oklch(98% 0.005 80);
+    font-size: 14.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .report-note {
+    font-size: 12px;
+    color: oklch(55% 0.03 55);
+    margin: 14px 0 0;
+  }
 </style>
 </head>
 <body>
@@ -233,7 +342,22 @@
       <path d="M15 5L8 12L15 19" stroke="oklch(35% 0.025 55)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
     </svg>
   </button>
+  <div id="progressBadge" class="progress-badge"></div>
+  <button id="reportBtn" class="report-btn" type="button">Сообщить об ошибке</button>
   <div id="app"></div>
+</div>
+
+<div id="reportOverlay" class="report-overlay" hidden>
+  <div class="report-dialog">
+    <h2 class="report-title">Сообщить об ошибке</h2>
+    <p class="report-page" id="reportPageLabel"></p>
+    <textarea id="reportText" class="report-textarea" placeholder="Опишите, что не так на этой странице"></textarea>
+    <div class="report-actions">
+      <button id="reportCancel" class="report-cancel" type="button">Отмена</button>
+      <button id="reportSend" class="report-send" type="button">Отправить</button>
+    </div>
+    <p class="report-note">Откроется письмо на почту разработчику — при отправке сообщение уйдёт вместе с указанием страницы.</p>
+  </div>
 </div>
 
 <script>
@@ -273,22 +397,36 @@
   // кофейня открывается в 10:00, поэтому второй рубеж больше не привязан к
   // текущему времени устройства.
   //
-  // Время нижней границы при сроке <= 72ч:
-  // - "под конкретный напиток" (остаток от приготовления) — не раньше 10:00, открытие;
-  // - заготовка/перетаривание — можно с 8:00.
+  // Срок <= 72ч (формат дата.час.минута): маркировка должна быть такой, чтобы
+  // позиция не считалась просроченной как минимум сегодня в 19:00 — это и
+  // "конец дня" в контексте тренажёра, с запасом до закрытия. Отсюда два условия
+  // для нижней границы:
+  //  - она не может быть раньше открытия (10:00 — под конкретный напиток,
+  //    8:00 — заготовка/перетаривание);
+  //  - она не может быть позже (19:00 − срок хранения), иначе позиция спишется
+  //    раньше 19:00.
+  // Берём более позднее (более строгое) из этих двух значений — сегодняшним
+  // числом. Верхняя граница — фиксированные 10:30, но не раньше нижней.
   function computeRange(item, now) {
     if (item.shelfHours == null) return null;
-    var endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-    var lowerRaw = new Date(endOfToday.getTime() - item.shelfHours * 3600 * 1000);
 
-    if (item.markingFormat === 'time') {
-      var isDrinkOnly = DRINK_ONLY_ROWS.indexOf(item.row) !== -1;
-      var lowerHour = isDrinkOnly ? 10 : 8;
-      var lower = new Date(lowerRaw.getFullYear(), lowerRaw.getMonth(), lowerRaw.getDate(), lowerHour, 0, 0, 0);
-      var upper = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 30, 0, 0);
-      return { lower: fmtDateTime(lower), upper: fmtDateTime(upper) };
+    if (item.markingFormat === 'date') {
+      var endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+      var lowerRaw = new Date(endOfToday.getTime() - item.shelfHours * 3600 * 1000);
+      return { lower: fmtDate(lowerRaw), upper: fmtDate(now) };
     }
-    return { lower: fmtDate(lowerRaw), upper: fmtDate(now) };
+
+    var isDrinkOnly = DRINK_ONLY_ROWS.indexOf(item.row) !== -1;
+    var openingHour = isDrinkOnly ? 10 : 8;
+    var opening = new Date(now.getFullYear(), now.getMonth(), now.getDate(), openingHour, 0, 0, 0);
+    var cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 19, 0, 0, 0);
+    var latestSafe = new Date(cutoff.getTime() - item.shelfHours * 3600 * 1000);
+    var lower = latestSafe.getTime() > opening.getTime() ? latestSafe : opening;
+
+    var fixedUpper = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 30, 0, 0);
+    var upper = fixedUpper.getTime() > lower.getTime() ? fixedUpper : lower;
+
+    return { lower: fmtDateTime(lower), upper: fmtDateTime(upper) };
   }
 
   function normalizeTemp(t) {
@@ -326,6 +464,9 @@
     var app = document.getElementById('app');
     var item = state.screen !== 'done' ? ITEMS[state.index] : null;
     var key = state.screen + '-' + state.index;
+
+    var shownIndex = state.screen === 'done' ? ITEMS.length : state.index + 1;
+    document.getElementById('progressBadge').textContent = shownIndex + ' / ' + ITEMS.length;
 
     var card = document.createElement('div');
     card.className = 'card ' + (state.screen === 'instruction' ? 'card--instruction' : 'card--quiz');
@@ -447,6 +588,58 @@
   }
 
   document.getElementById('backBtn').addEventListener('click', goBack);
+
+  // Сообщения об ошибках: копим в localStorage (на случай, если письмо не
+  // уйдёт — почтового клиента может не быть на устройстве) и одновременно
+  // открываем письмо с адресом страницы и текстом сообщения.
+  var REPORTS_KEY = 'markirovka_reports';
+  var REPORT_EMAIL = 'mzhome6tv@gmail.com';
+
+  function currentPageLabel() {
+    if (state.screen === 'done') return 'Финальный экран';
+    var item = ITEMS[state.index];
+    var screenLabel = state.screen === 'instruction' ? 'подсказка' : 'карточка';
+    return (state.index + 1) + '/' + ITEMS.length + ' — ' + item.name + ' (' + screenLabel + ')';
+  }
+
+  function saveReport(pageLabel, message) {
+    var reports = [];
+    try { reports = JSON.parse(localStorage.getItem(REPORTS_KEY)) || []; } catch (e) {}
+    reports.push({ page: pageLabel, message: message, when: new Date().toISOString() });
+    try { localStorage.setItem(REPORTS_KEY, JSON.stringify(reports)); } catch (e) {}
+  }
+
+  var reportOverlay = document.getElementById('reportOverlay');
+  var reportText = document.getElementById('reportText');
+  var reportPageLabel = document.getElementById('reportPageLabel');
+
+  function openReportDialog() {
+    reportPageLabel.textContent = 'Страница: ' + currentPageLabel();
+    reportText.value = '';
+    reportOverlay.hidden = false;
+    reportText.focus();
+  }
+  function closeReportDialog() {
+    reportOverlay.hidden = true;
+  }
+
+  document.getElementById('reportBtn').addEventListener('click', openReportDialog);
+  document.getElementById('reportCancel').addEventListener('click', closeReportDialog);
+  reportOverlay.addEventListener('click', function (e) {
+    if (e.target === reportOverlay) closeReportDialog();
+  });
+  document.getElementById('reportSend').addEventListener('click', function () {
+    var message = reportText.value.trim();
+    if (!message) return;
+    var pageLabel = currentPageLabel();
+    saveReport(pageLabel, message);
+    var subject = 'Ошибка на сайте — ' + pageLabel;
+    var body = 'Страница: ' + pageLabel + '\n\n' + message;
+    var mailto = 'mailto:' + REPORT_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    window.location.href = mailto;
+    closeReportDialog();
+  });
+
   render();
 </script>
 </body>
