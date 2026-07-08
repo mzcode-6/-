@@ -31,14 +31,14 @@
 
   .card {
     animation: cardIn 0.38s cubic-bezier(0.2,0.8,0.2,1);
-    width: min(420px, 100%);
+    width: min(440px, 100%);
     background: oklch(99% 0.008 75);
     border-radius: 28px;
     box-shadow: 0 24px 60px oklch(32% 0.03 45 / 0.16), 0 2px 8px oklch(32% 0.03 45 / 0.08);
   }
 
   .card--quiz {
-    padding: 48px 40px 40px;
+    padding: 44px 36px 36px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -46,7 +46,7 @@
   }
 
   .card--instruction {
-    width: min(440px, 100%);
+    width: min(460px, 100%);
     padding: 44px 40px 36px;
     display: flex;
     flex-direction: column;
@@ -59,16 +59,27 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: oklch(60% 0.1 55);
+    margin-bottom: 6px;
+  }
+
+  .category-tag {
+    font-size: 13px;
+    color: oklch(48% 0.025 55);
     margin-bottom: 14px;
   }
 
   .item-name {
     font-family: 'Lora', serif;
     font-weight: 700;
-    font-size: 38px;
-    line-height: 1.15;
+    font-size: 32px;
+    line-height: 1.2;
     color: oklch(27% 0.035 50);
     margin: 0 0 22px;
+    text-wrap: balance;
+  }
+  .item-name.item-name--long {
+    font-size: 21px;
+    line-height: 1.35;
   }
 
   .shelf-life {
@@ -78,15 +89,16 @@
     gap: 4px;
     background: oklch(94% 0.028 60);
     border-radius: 16px;
-    padding: 16px 28px;
+    padding: 16px 24px;
     margin-bottom: 34px;
   }
   .shelf-life .value {
     font-family: 'Lora', serif;
     font-weight: 600;
-    font-size: 26px;
+    font-size: 22px;
     color: oklch(32% 0.04 50);
     letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
   }
   .shelf-life .label {
     font-size: 12.5px;
@@ -101,7 +113,7 @@
 
   .choices {
     display: flex;
-    gap: 28px;
+    gap: 22px;
   }
   .choice {
     display: flex;
@@ -110,8 +122,8 @@
     gap: 8px;
   }
   .choice-btn {
-    width: 64px;
-    height: 64px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     border: none;
     cursor: pointer;
@@ -125,6 +137,8 @@
   .choice-btn--correct:hover { background: oklch(89% 0.08 150); transform: scale(1.06); }
   .choice-btn--wrong { background: oklch(93% 0.06 25); }
   .choice-btn--wrong:hover { background: oklch(89% 0.08 25); transform: scale(1.06); }
+  .choice-btn--absent { background: oklch(90% 0.006 55); }
+  .choice-btn--absent:hover { background: oklch(85% 0.006 55); transform: scale(1.06); }
   .choice-label {
     font-size: 12px;
     color: oklch(50% 0.02 55);
@@ -133,8 +147,8 @@
   .instruction-title {
     font-family: 'Lora', serif;
     font-weight: 700;
-    font-size: 26px;
-    line-height: 1.25;
+    font-size: 24px;
+    line-height: 1.3;
     color: oklch(27% 0.035 50);
     margin: 0 0 16px;
   }
@@ -145,6 +159,7 @@
     margin: 0 0 12px;
   }
   .instruction-text:last-of-type { margin-bottom: 30px; }
+  .instruction-text b { color: oklch(27% 0.035 50); }
 
   .primary-btn {
     width: 100%;
@@ -168,15 +183,59 @@
 </div>
 
 <script>
-  // Каждый пункт — то, что нужно промаркировать, и корректный срок годности,
-  // который должен стоять на этикетке. Значения ниже условные — замените
-  // на актуальные сроки вашего заведения.
-  var ITEMS = [
-    { name: 'Сырная пена', shelfLife: '5–10', unit: 'срок годности на этикетке' },
-    { name: 'Мокко мусс', shelfLife: '5–10', unit: 'срок годности на этикетке' }
-  ];
+  // Данные — вкладка «ПМСХ» («Положение о сроках хранения», ред. 16.07.26).
+  // shelfHours = null для позиций «согласно аннотации» / «без срока годности» —
+  // для них диапазон не считается, показывается исходный текст из документа.
+  var ITEMS = [{"row": 7, "category": "Фрукты и Овощи", "name": "Апельсин, грейпфрут, лимон, лайм, яблоко, морковь, банан", "temp": "+ 2 + 6", "container": "гас.емкость с крышкой", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "дата прихода", "markingFormat": "date", "comment": "Сохранить аннотацию поставщика!", "recipe": null}, {"row": 8, "category": "Фрукты и Овощи", "name": "Апельсин, грейпфрут, лимон, лайм, яблоко, морковь, банан (обработанные)", "temp": "+ 2 + 6", "container": "гас.емкость с крышкой", "shelfText": "18 часов", "shelfHours": 18, "markingDesc": "дата и время после обработки", "markingFormat": "time", "comment": "Сохранить аннотацию поставщика!", "recipe": null}, {"row": 9, "category": "Фрукты и Овощи", "name": "Половинки овощей", "temp": "+ 2 + 6", "container": "гас.емкость с крышкой", "shelfText": "12 часов", "shelfHours": 12, "markingDesc": "дата и время начала реализации", "markingFormat": "time", "comment": null, "recipe": null}, {"row": 10, "category": "Фрукты и Овощи", "name": "Половинки фруктов", "temp": "+ 2 + 6", "container": "гас.емкость с крышкой", "shelfText": "12 часов", "shelfHours": 12, "markingDesc": "дата и время начала реализации", "markingFormat": "time", "comment": null, "recipe": null}, {"row": 11, "category": "Фрукты и Овощи", "name": "Нарезанные ломтики фруктов", "temp": "+ 2 + 6", "container": "гас.емкость с крышкой ,на дренаже", "shelfText": "6 часов", "shelfHours": 6, "markingDesc": "дата и время начала реализации", "markingFormat": "time", "comment": null, "recipe": null}, {"row": 12, "category": "Фрукты и Овощи", "name": "Морковь очищенная", "temp": "+ 2 + 6", "container": "гас.емкость с крышкой", "shelfText": "12 часов", "shelfHours": 12, "markingDesc": "дата и время начала реализации", "markingFormat": "time", "comment": "Сохранить аннотацию поставщика!", "recipe": "Тщательно очистить необходимое количество моркови на смену и промыть под проточной водой. Хранить в промаркированной гастроемкости в закрытом виде, в плюсовом холодильнике."}, {"row": 14, "category": "Соки и вода", "name": "Морс 1л ФК (вскрытый)", "temp": "+ 2 + 6", "container": "оригинальная бутылка", "shelfText": "24 часа", "shelfHours": 24, "markingDesc": "дата и время вскрытия бутылки", "markingFormat": "time", "comment": null, "recipe": null}, {"row": 15, "category": "Соки и вода", "name": "Jumbo Cola, Jumbo Тоник, Tassay вода с\\г (вскрытый)", "temp": "+ 2 + 6", "container": "оригинальная бутылка", "shelfText": "24 часа", "shelfHours": 24, "markingDesc": "дата и время вскрытия бутылки", "markingFormat": "time", "comment": null, "recipe": null}, {"row": 16, "category": "Соки и вода", "name": "Соки в ассортименте (вскрытый)", "temp": "+ 2 + 6", "container": "заводская упаковка", "shelfText": "24 часа", "shelfHours": 24, "markingDesc": "дата и время вскрытия упаковки", "markingFormat": "time", "comment": "Строго хранить в холодильнике! После вскрытия закрывать пищевой пленкой/клипсой!", "recipe": null}, {"row": 18, "category": "Зелень, Ягоды", "name": "Мята, чабрец", "temp": "+ 2 + 6", "container": "гас.емкость с крышкой", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "дата прихода", "markingFormat": "date", "comment": "Сохранить аннотацию поставщика!", "recipe": null}, {"row": 19, "category": "Зелень, Ягоды", "name": "Мята, чабрец (обработанные)", "temp": "+ 2 + 6", "container": "гас.емкость с крышкой, на дренаже", "shelfText": "12 часов", "shelfHours": 12, "markingDesc": "дата и время приготовления", "markingFormat": "time", "comment": "Сохранить аннотацию поставщика! Не сушить! (салфетки, полотенце) При потере органолептических свойств подлежит списанию.", "recipe": null}, {"row": 20, "category": "Зелень, Ягоды", "name": "Клубника свежая (обработанная)", "temp": "+ 2 + 6", "container": "гас.емкость с крышкой, на дренаже", "shelfText": "6 часов", "shelfHours": 6, "markingDesc": "дата и время после обработки", "markingFormat": "time", "comment": "Сохранить аннотацию поставщика!", "recipe": null}, {"row": 22, "category": "Свежемороженые пюре, ягоды и фрукты", "name": "Концентраты для напитков \"ООО УГЛЕВОДЫ\" дефростированые (Поставка ФК)", "temp": "+ 2 + 6", "container": "заводская упаковка", "shelfText": "30 суток", "shelfHours": 720, "markingDesc": "число, месяц, год", "markingFormat": "date", "comment": "Ставить маркировку вчерашним числом. Во избежание путаницы концентратов, допускается буквенное обозначение вкуса на маркеровочной ленте и приклеиную на крышку. ( М-малина, К-клубника и т.д)", "recipe": null}, {"row": 23, "category": "Свежемороженые пюре, ягоды и фрукты", "name": "Концентраты для напитков \"ООО УГЛЕВОДЫ\" c/м (Поставка с ИВЛ)", "temp": "- 18", "container": "заводская упаковка", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "число, месяц, год", "markingFormat": "date", "comment": "Дефростировать в х/с 24 часа, маркировку ставить с начала дефроста.", "recipe": null}, {"row": 24, "category": "Свежемороженые пюре, ягоды и фрукты", "name": "Малина с/м", "temp": "- 18", "container": "гас.емкость с крышкой", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "число, месяц, год вскрытия/перетаривания", "markingFormat": "date", "comment": "Сохранить аннотацию поставщика!", "recipe": null}, {"row": 26, "category": "Топпинги, сиропы, шоколад, фрукты/ягоды в сирпое", "name": "Паста орех фисташки \"ОрехПром\" (вскрытый)", "temp": "+21/Согласно аннотации", "container": "заводская упаковка", "shelfText": "30 суток", "shelfHours": 720, "markingDesc": "число, месяц, год вскрытия упаковки", "markingFormat": "date", "comment": "После вскрытия упаковки закрыть зажимом. Закрывать зажимом с салфеткой запрещено!", "recipe": null}, {"row": 27, "category": "Топпинги, сиропы, шоколад, фрукты/ягоды в сирпое", "name": "Паста орехов фисташки, обжаренных \"ОрехПром\" (перетаренная)", "temp": "+21/Согласно аннотации", "container": "гас.емкость с крышкой", "shelfText": "72 часа", "shelfHours": 72, "markingDesc": "дата и время перетаривания", "markingFormat": "time", "comment": "Сохранить аннотацию поставщика!", "recipe": null}, {"row": 28, "category": "Топпинги, сиропы, шоколад, фрукты/ягоды в сирпое", "name": "Топпинг \"Манго\" Торри (вскрытый), Пюре \"Вишня\"P&D (вскрытый)", "temp": "+21/Согласно аннотации", "container": "оригинальная бутылка", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "число, месяц, год вскрытия упаковки", "markingFormat": "date", "comment": null, "recipe": null}, {"row": 29, "category": "Топпинги, сиропы, шоколад, фрукты/ягоды в сирпое", "name": "Кордиал Брусника Грейпфрут \"Sweet Sour\" (вскрытый)", "temp": "+21/Согласно аннотации", "container": "оригинальная бутылка", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "число, месяц, год вскрытия упаковки", "markingFormat": "date", "comment": null, "recipe": null}, {"row": 30, "category": "Топпинги, сиропы, шоколад, фрукты/ягоды в сирпое", "name": "Сиропы в ассортименте", "temp": "+ 21/Согласно аннотации", "container": "оригинальная бутылка", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "число, месяц, год вскрытия упаковки", "markingFormat": "date", "comment": "Сохранить аннотацию поставщика!", "recipe": null}, {"row": 31, "category": "Топпинги, сиропы, шоколад, фрукты/ягоды в сирпое", "name": "Мёд (в соуснике)", "temp": "+ 40 + 50", "container": "мармит для соусов", "shelfText": "12 часов", "shelfHours": 12, "markingDesc": "дата и время перетаривания/перемещения в мармит", "markingFormat": "time", "comment": "Соусник желтого цвета! Сохранить аннотацию поставщика!", "recipe": null}, {"row": 32, "category": "Топпинги, сиропы, шоколад, фрукты/ягоды в сирпое", "name": "Мёд (в соуснике, без мармита)", "temp": "+ 21/Согласно аннотации", "container": "соусник", "shelfText": "12 часов", "shelfHours": 12, "markingDesc": "дата и время перетаривания", "markingFormat": "time", "comment": "Соусник желтого цвета! Сохранить аннотацию поставщика!", "recipe": null}, {"row": 33, "category": "Топпинги, сиропы, шоколад, фрукты/ягоды в сирпое", "name": "Вишня в сиропе (вскрытый)", "temp": "+ 2 + 6", "container": "гас.емкость с крышкой", "shelfText": "72 часа", "shelfHours": 72, "markingDesc": "дата и время вскрытия", "markingFormat": "time", "comment": null, "recipe": null}, {"row": 34, "category": "Топпинги, сиропы, шоколад, фрукты/ягоды в сирпое", "name": "Фруктовый коктейль (вскрытый)", "temp": "+ 2 + 6", "container": "гас.емкость с крышкой", "shelfText": "24 часа", "shelfHours": 24, "markingDesc": "дата и время вскрытия", "markingFormat": "time", "comment": null, "recipe": null}, {"row": 35, "category": "Топпинги, сиропы, шоколад, фрукты/ягоды в сирпое", "name": "Таблетки шоколада (вскрытый)", "temp": "+ 21/Согласно аннотации", "container": "заводская упаковка", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "число, месяц, год вскрытия/перетаривания", "markingFormat": "date", "comment": "Сохранить аннотацию поставщика!", "recipe": null}, {"row": 37, "category": "Мороженое и молочные продукты", "name": "Мороженое (пломбир, клубничное, шоколадное)", "temp": "- 18", "container": "заводская упаковка", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "число, месяц, год вскрытия упаковки", "markingFormat": "date", "comment": "Лоток должен быть закрыт. Сохранить аннотацию поставщика!", "recipe": null}, {"row": 38, "category": "Мороженое и молочные продукты", "name": "Молоко кокосовое VELLE, банановое VELLE (вскрытый)", "temp": "+ 2 + 6", "container": "заводская упаковка", "shelfText": "72 часа", "shelfHours": 72, "markingDesc": "дата и время начала реализации", "markingFormat": "time", "comment": "Строго хранить в холодильнике!", "recipe": null}, {"row": 39, "category": "Мороженое и молочные продукты", "name": "Молоко 2,5 %/3,2%, безлактозное, Сливки 10 % (вскрытый)", "temp": "+ 2 + 6", "container": "заводская упаковка", "shelfText": "48 часов", "shelfHours": 48, "markingDesc": "дата и время начала реализации", "markingFormat": "time", "comment": "Строго хранить в холодильнике!", "recipe": null}, {"row": 40, "category": "Мороженое и молочные продукты", "name": "Сливки растительные (Шантипак) (вскрытый)", "temp": "+2 +6", "container": "заводская упаковка", "shelfText": "72 часа", "shelfHours": 72, "markingDesc": "дата и время начала реализации", "markingFormat": "time", "comment": "Строго хранить в холодильнике!", "recipe": null}, {"row": 41, "category": "Мороженое и молочные продукты", "name": "Молоко 2,5 %/3,2% (остатки после взбивания)", "temp": "+ 2 + 6", "container": "Питчер", "shelfText": "30 минут", "shelfHours": 0.5, "markingDesc": "дата и время начала реализации", "markingFormat": "time", "comment": "Питчер закрытый пищевой пленкой!", "recipe": null}, {"row": 43, "category": "Кофе и чай", "name": "Эспрессо-смесь \"Шоколадница Бленд\", Декаф", "temp": "+ 21/Согласно аннотации", "container": "заводская упаковка", "shelfText": "2 мес.", "shelfHours": 1440, "markingDesc": "число, месяц, год вскрытия упаковки", "markingFormat": "date", "comment": "Хранить плотно, без воздуха. Сохранить аннотацию поставщика! Срок отсчитывать с даты обжарки. Пример: 15.10 дата обжарки. 15.12 в 00:00 списание продукта.", "recipe": null}, {"row": 44, "category": "Кофе и чай", "name": "СТМ Кофе в зернах (Эспрессо, Бразилия, Эфиопия, Руанда)", "temp": "+ 21/Согласно аннотации", "container": "заводская упаковка", "shelfText": "2 мес.", "shelfHours": 1440, "markingDesc": null, "markingFormat": "date", "comment": "Можно проваривать в кофейне. Эспрессо- для приготовления эспрессо. Моносорта- для заваривания фильтр кофе. Пример: 15.10 дата обжарки. 15.12 в 00:00 списание продукта.", "recipe": null}, {"row": 45, "category": "Кофе и чай", "name": "СТМ Кофе в зернах (Эспрессо, Бразилия, Эфиопия, Руанда)(Вскрытый под фильтр)", "temp": "+ 21/Согласно аннотации", "container": "заводская упаковка", "shelfText": "2 мес.", "shelfHours": 1440, "markingDesc": null, "markingFormat": "date", "comment": "Можно проваривать в кофейне. Эспрессо- для приготовления эспрессо. Моносорта- для заваривания фильтр кофе. Пример: 15.10 дата обжарки. 15.12 в 00:00 списание продукта.", "recipe": null}, {"row": 46, "category": "Кофе и чай", "name": "Кофейный концентрат \"Бразилия\"(Br2)", "temp": "+ 2 + 6", "container": "заводская упаковка", "shelfText": "1 мес.", "shelfHours": 720, "markingDesc": "число, месяц, год вскрытия упаковки", "markingFormat": "date", "comment": "Сохранить аннотацию поставщика!", "recipe": null}, {"row": 47, "category": "Кофе и чай", "name": "Кофейный концентрат \"Бразилия\"(Br2) (перетаренный)", "temp": "+ 2 + 6", "container": "соусник", "shelfText": "12 часов", "shelfHours": 12, "markingDesc": "дата и время перетаривания", "markingFormat": "time", "comment": "Перемешать перед использованием!", "recipe": null}, {"row": 48, "category": "Кофе и чай", "name": "СТМ Дрип-кофе", "temp": "+ 21/Согласно аннотации", "container": "заводская упаковка", "shelfText": "6 мес.", "shelfHours": 4320, "markingDesc": null, "markingFormat": "date", "comment": null, "recipe": null}, {"row": 49, "category": "Кофе и чай", "name": "Моносорта чая\\цветы\\травяные\\ягодные смеси (вскрытый)", "temp": "+ 21/Согласно аннотации", "container": "заводская упаковка/стеклянная тара", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "число, месяц, год вскрытия упаковки", "markingFormat": "date", "comment": "Сохранить аннотацию поставщика! Открытый чай хранить в закрытой стеклянной таре. Допускается хранения расфасованного чая по бумажным фильтрам, срок годности не меняется при соблюдении условий хранения. Не соединять остатки чая предыдущей упаковки со свежим!", "recipe": null}, {"row": 50, "category": "Кофе и чай", "name": "Зеленая матча, Ходзича", "temp": "+21/Согласно аннотации", "container": "гас.емкость с крышкой", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "число, месяц, год вскрытия/перетаривания", "markingFormat": "date", "comment": "Строго хранить при комнатной температуре! Сохранить аннотацию поставщика.", "recipe": null}, {"row": 52, "category": "Сыпучие продукты, специи и прочее", "name": "Ядра орехов фисташки обжаренные дробленные \"Орехпром\"(вскрытый)", "temp": "+ 21/Согласно аннотации", "container": "гас.емкость с крышкой", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "число, месяц, год вскрытия/перетаривания", "markingFormat": "date", "comment": "Сохранить аннотацию поставщика!", "recipe": null}, {"row": 53, "category": "Сыпучие продукты, специи и прочее", "name": "Корица молотая, Какао, Сахар обычный, Сырный порошок, Пена розовая\"My sweet dust\", Пена оранжевая\"My sweet dust\", Пена малиновая \"My sweet dust\" foam, Основа фисташка \"My sweet dust\" aroma, Можжевельник, CBD \"My sweet dust\" cordial", "temp": "+ 21/Согласно аннотации", "container": "заводская упаковка/стеклянная тара", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "число, месяц, год вскрытия/перетаривания", "markingFormat": "date", "comment": "Сохранить аннотацию поставщика!", "recipe": null}, {"row": 54, "category": "Сыпучие продукты, специи и прочее", "name": "Корица молотая, какао, Пена малиновая \"My sweet dust\" foam", "temp": "+ 21/Согласно аннотации", "container": "диспенсер", "shelfText": "72 часа", "shelfHours": 72, "markingDesc": "дата и время перетаривания", "markingFormat": "time", "comment": "Сохранить аннотацию поставщика! Поддерживать чистоту диспенсера!", "recipe": null}, {"row": 55, "category": "Сыпучие продукты, специи и прочее", "name": "Маршмеллоу (вскрытый)", "temp": "+ 21/Согласно аннотации", "container": "гас.емкость с крышкой", "shelfText": "5 суток", "shelfHours": 120, "markingDesc": "число, месяц, год вскрытия/перетаривания", "markingFormat": "date", "comment": "Сохранить аннотацию поставщика!", "recipe": null}, {"row": 56, "category": "Сыпучие продукты, специи и прочее", "name": "Печенье Орео, Печенье протеиновое фисташка Bombbar, Печенье Юбилейное, печенье Савоярди", "temp": "+21/согласно аннотации", "container": "гас.емкость с крышкой", "shelfText": "7 суток", "shelfHours": 168, "markingDesc": "число, месяц, год вскрытия/перетаривания", "markingFormat": "date", "comment": "Сохранить аннотацию поставщика!", "recipe": null}, {"row": 58, "category": "Заготовки", "name": "Заготовка \"Фильтр-кофе\"", "temp": "+ 60 + 90", "container": "термос", "shelfText": "3 часа", "shelfHours": 3, "markingDesc": "дата и время приготовления", "markingFormat": "time", "comment": null, "recipe": "Кофе намалываем непосредственно перед приготовлением! Намолоть 60 гр кофе, среднего помола, на 1000 мл воды (вода из фильтра/графина). Перед завариванием обязательно полностью смочить фильтр водой из кофемашины при помощи питчера. Пропорцию можно увеличивать. Оставшийся кофе в пакете плотно закрыть зажимом."}, {"row": 59, "category": "Заготовки", "name": "Заготовка \"Сахарный сироп\"", "temp": "+ 21/Согласно аннотации", "container": "стеклянная тара", "shelfText": "24 часа", "shelfHours": 24, "markingDesc": "дата и время приготовления", "markingFormat": "time", "comment": null, "recipe": "Приготовить сахарный сироп в пропорции 1:1 (500 гр сахара и 500 мл горячей воды). Тщательно перемешать. Дать остыть. Перелить в стеклянную бутылку через сито для чая."}, {"row": 60, "category": "Заготовки", "name": "Заготовка \"Горячий фирм. шоколад\"", "temp": "+ 65 + 75", "container": "мармит для шоколада", "shelfText": "12 часов", "shelfHours": 12, "markingDesc": "дата и время перетаривания/перемещения в мармит", "markingFormat": "time", "comment": null, "recipe": "1. В пластиковую гастроемкость поместить шоколадные пластины (1800 гр) и добавить сливки 10% жирности (1000 мл). 2. Поместить в СВЧ и выставить время на 4 минуты. 3. Размешать смесь до однородной массы и влить в мармит. 4. Выставить температуру мармита в диапазоне 65-75.°С (температура, при которой не отслаивается шоколад от масла.) Во все напитки с горячим шоколадом закладка идет в граммах по весам!"}, {"row": 61, "category": "Заготовки", "name": "Заготовка \"Горячий фирм. шоколад\" (хранение в мармите для соусов)", "temp": "+ 40 + 50", "container": "соусник", "shelfText": "12 часов", "shelfHours": 12, "markingDesc": "дата и время приготовления и перемещения соусника в мармит", "markingFormat": "time", "comment": "Только для объектов без шоколадоварки!", "recipe": "1. В пластиковую гастроемкость поместить шоколадные пластины (180 гр) и добавить сливки 10% жирности (100 мл). 2. Поместить в СВЧ и выставить время на 1-1,5 минуты. 3. Размешать смесь до однородной массы и влить в соусник. 4. Соусник хранить в мармите для соусов. Во все напитки с горячим шоколадом закладка идет в граммах по весам! Только для объектов без шоколадоварки!"}, {"row": 62, "category": "Заготовки", "name": "Заготовка \"Фреши апельсиновый, лимонный, лаймовый, грейпфрутовый\"", "temp": "+ 2 + 6", "container": "стеклянная тара/графин закрыт пищевой пленкой", "shelfText": "12 часов", "shelfHours": 12, "markingDesc": "дата и время приготовления", "markingFormat": "time", "comment": "Вторичная тара запрещается, ручка графина маркируется разноцветными канцелярскими резинками для каждого сока", "recipe": "Выжать сок в стеклянную тару! Заготовку сока хранить в плюсовом холодильнике, в закрытом виде. Емкости с фрешами должны быть подписаны в соответствии с Приложением №29. Если подпись на емкости не держится (прим. стеклянный графин 200мл), допустимо маркировать разноцветными канцелярскими резинками: апельсин - оранжевой, лимон - желтой, лайм - зеленой, грейпфрут - красной, имбирь - черной. Перед использованием тщательно перемешать! Запрещено использовать вторичную тару!"}, {"row": 63, "category": "Заготовки", "name": "Заготовка \"Матча\", Заготовка \"Ходзича\"", "temp": "+ 2 + 6", "container": "соусник", "shelfText": "12 часов", "shelfHours": 12, "markingDesc": "дата и время приготовления", "markingFormat": "time", "comment": "Перемешать перед использованием!", "recipe": "В питчер добавить зеленую матчу 5 гр, воду горячую из бойлера 100 гр, перемешать барной ложкой и дать остыть. Перелить в емкость для хранения. Пропорции можно увеличивать в зависимости от проходимости напитка. В питчер добавить ходзичу 5 гр, воду горячую из бойлера 100 гр, перемешать барной ложкой и дать остыть. Перелить в емкость для хранения. Пропорции можно увеличивать в зависимости от проходимости напитка."}, {"row": 64, "category": "Заготовки", "name": "Заготовка пена \"Сырная\", Заготовка \"Какао\", Заготовка пена \"Малиновая\", Заготовка \"Манго\", Заготовка пена \"Медовая\"", "temp": "+2 +6", "container": "соусник", "shelfText": "12 часов", "shelfHours": 12, "markingDesc": "дата и время приготовления", "markingFormat": "time", "comment": "Перемешать перед использованием!", "recipe": "В блендер стакан добавить сырный порошок 10 гр, сливки 10% 100гр, сливки растительные (Шантипак) 100гр и взбить на 3й программе (28-30 сек). Перелить в соусник и убрать в холодильник В блендер стакан добавить пена малиновая \"My sweet dust\" foam 10 гр, сливки 10% 100гр, сливки растительные (Шантипак) 100гр и взбить на 3й программе (28-30 сек). Перелить в соусник и убрать в холодильник В питчер добавить какао порошок 40гр, сахар белый 80 гр, воду горячую 150 гр и тщательно перемешать барной ложкой. Дать остыть, перелить в соусник и убрать в холодильник. В блендер стакан добавить сливки (10%) 50гр, сливки растительные (Шантипак) 80гр, мед 50гр и взбить на 3й программе (28-30 сек). Перелить в соусник и убрать в холодильник. В блендер стакан добавить 100 гр топпинга манго, банан 50гр и взбить на 3й программе (28-30 сек). Перелить в соусник и убрать в холодильник. Пропорции можно увеличивать в зависимости от проходимости напитка."}, {"row": 65, "category": "Заготовки", "name": "Заготовка \"Нарезанные медовые Соты\"", "temp": "+2 +6", "container": "гас.емкость с крышкой", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "число, месяц, год вскрытия/перетаривания", "markingFormat": "date", "comment": null, "recipe": "1. Цельные медовые соты порезать на равные 4 прямоугольные части. 2. Каждый из прямоугольников порезать на 4 равных квадрата. 3. Общее количество = 16 кубиков. См рис. И видео обучение. Доска и нож для нарезки сот Ф/Я Рис. 1 Рис. 2 Рис. 3"}, {"row": 66, "category": "Заготовки", "name": "Заготовка \"Мокка мусс\"", "temp": "+2 +6", "container": "Кремер", "shelfText": "12 часов", "shelfHours": 12, "markingDesc": "дата и время приготовления", "markingFormat": "time", "comment": "Взболтать перед использованием!", "recipe": "В кремер 1л добавить заготовку горячего шоколада 300 гр, растительные сливки (Шантипак) 700гр, кофейный концентрат 100 гр и перемешать барной ложкой. В кремер 0,5л добавить заготовку горячего шоколада 150 гр, растительные сливки (Шантипак) 350гр, кофейный концентрат 50 гр и перемешать барной ложкой. Закрутить крышку кремера. Заправить 1 балон с газом тщательно потрясти и убрать в холодильник. Для всех объемов кремера."}, {"row": 67, "category": "Заготовки", "name": "Заготовка \"Декаф намолотый\"", "temp": "+ 21/Согласно аннотации", "container": "Банка с вакуумной крышкой", "shelfText": "72 часа", "shelfHours": 72, "markingDesc": "Дата и время намалывания", "markingFormat": "time", "comment": "Хранить плотно, без воздуха. Сохранить аннотацию поставщика!", "recipe": null}, {"row": 69, "category": "Алкогольная продукция", "name": "Игристое Шато Тамань, Martini Prosecco/Brut, Абрау-Дюрсо Розе, Asti martini (вскрытый)", "temp": "+ 2 + 6", "container": "оригинальная бутылка", "shelfText": "4 суток", "shelfHours": 96, "markingDesc": "число, месяц, год вскрытия бутылки", "markingFormat": "date", "comment": "Бутылка 0,75л закрывается пробкой (стоппером) для игристого вина.", "recipe": null}, {"row": 70, "category": "Алкогольная продукция", "name": "Онегин Gourmet настойки", "temp": "+ 21/Согласно аннотации", "container": "оригинальная бутылка", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "число, месяц, год вскрытия бутылки", "markingFormat": "date", "comment": null, "recipe": null}, {"row": 71, "category": "Алкогольная продукция", "name": "Водка", "temp": "+ 2 + 6", "container": "оригинальная бутылка", "shelfText": "без срока годности", "shelfHours": null, "markingDesc": "число, месяц, год вскрытия бутылки", "markingFormat": "date", "comment": null, "recipe": null}, {"row": 72, "category": "Алкогольная продукция", "name": "Белые вина/Красные вина/Розовое вино (вскрытый)", "temp": "+ 2 + 6", "container": "оригинальная бутылка", "shelfText": "2 месяца", "shelfHours": 1440, "markingDesc": "число, месяц, год вскрытия бутылки", "markingFormat": "date", "comment": "После вскрытия закрывать вакуумными пробками для вин, воздух выкачиваем специальным насосом из бутылки полностью!", "recipe": null}, {"row": 73, "category": "Алкогольная продукция", "name": "Вермуты Мартини (вскрытый)", "temp": "+ 2 + 6", "container": "оригинальная бутылка", "shelfText": "согласно аннотации", "shelfHours": null, "markingDesc": "число, месяц, год вскрытия бутылки", "markingFormat": "date", "comment": "Закрывать оригинальной крышкой", "recipe": null}, {"row": 74, "category": "Алкогольная продукция", "name": "Апероль, Кампари, Sarti, Ligare bitter (вскрытый)", "temp": "+ 21/Согласно аннотации", "container": "оригинальная бутылка", "shelfText": "6 месяцев", "shelfHours": 4320, "markingDesc": "число, месяц, год вскрытия бутылки", "markingFormat": "date", "comment": "Закрывать оригинальной крышкой", "recipe": null}, {"row": 75, "category": "Алкогольная продукция", "name": "Джин, виски, текила, ром, ликер, коньяк, бренди (вскрытый)", "temp": "+ 21/Согласно аннотации", "container": "оригинальная бутылка", "shelfText": "без срока годности", "shelfHours": null, "markingDesc": "число, месяц, год вскрытия бутылки", "markingFormat": "date", "comment": null, "recipe": null}, {"row": 76, "category": "Алкогольная продукция", "name": "Открытая кега", "temp": "+ 21/Согласно аннотации", "container": "Кега", "shelfText": "7 суток", "shelfHours": 168, "markingDesc": "число, месяц, год вскрытия кеги", "markingFormat": "date", "comment": "Срок хранения после вскрытия 7 - суток!", "recipe": null}];
 
   var state = { index: 0, screen: 'quiz' };
+
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function fmtDate(d) { return pad2(d.getDate()) + '.' + pad2(d.getMonth() + 1) + '.' + String(d.getFullYear()).slice(-2); }
+  function fmtDateTime(d) { return pad2(d.getDate()) + '.' + pad2(d.getHours()) + '.' + pad2(d.getMinutes()); }
+
+  // Первый рубеж — маркировка, при которой продукт спишется сегодня в конце дня.
+  // Второй рубеж — сегодняшняя дата (срок > 72ч) или текущие дата и время (срок <= 72ч).
+  function computeRange(item, now) {
+    if (item.shelfHours == null) return null;
+    var endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    var lower = new Date(endOfToday.getTime() - item.shelfHours * 3600 * 1000);
+    if (item.markingFormat === 'time') {
+      return { lower: fmtDateTime(lower), upper: fmtDateTime(now) };
+    }
+    return { lower: fmtDate(lower), upper: fmtDate(now) };
+  }
+
+  function normalizeTemp(t) {
+    if (!t) return '';
+    var nums = t.match(/[+-]?\s?\d+/g);
+    if (nums && nums.length === 2) {
+      return 'от ' + nums[0].replace(/\s/g, '') + '°C до ' + nums[1].replace(/\s/g, '') + '°C';
+    }
+    if (nums && nums.length === 1) {
+      var a = nums[0].replace(/\s/g, '');
+      return /аннотац/i.test(t) ? a + '°C (или согласно аннотации поставщика)' : a + '°C';
+    }
+    return t;
+  }
+
+  function buildStorageText(item) {
+    var parts = [];
+    var where = normalizeTemp(item.temp);
+    if (where && item.container) parts.push('Хранить при ' + where + ' в таре: ' + item.container + '.');
+    else if (where) parts.push('Хранить при ' + where + '.');
+    parts.push('Срок годности — ' + item.shelfText + '.');
+    if (item.comment) parts.push(item.comment);
+    return parts.join(' ');
+  }
+
+  function buildMarkingText(item) {
+    var desc = item.markingDesc ? 'На этикетке указывают: ' + item.markingDesc + '.' : '';
+    var rule = item.markingFormat === 'time'
+      ? 'Срок годности до 72 часов включительно — формат маркировки дата.час.минута (пример: 08.10.47 — вскрыто 8-го числа в 10:47).'
+      : 'Срок годности больше 72 часов — формат маркировки дата.месяц.год (пример: 08.07.26).';
+    return (desc ? desc + ' ' : '') + rule;
+  }
 
   function render() {
     var app = document.getElementById('app');
@@ -188,8 +247,15 @@
     card.setAttribute('data-key', key);
 
     if (state.screen === 'quiz') {
+      var range = computeRange(item, new Date());
+      var chipValue = range ? (range.lower + ' – ' + range.upper) : item.shelfText;
+      var chipLabel = range
+        ? (item.markingFormat === 'time' ? 'верный диапазон маркировки (дата.час.минута)' : 'верный диапазон маркировки (дата.месяц.год)')
+        : 'срок годности — по данным поставщика';
+
       card.innerHTML =
         '<div class="eyebrow">Маркировка</div>' +
+        '<div class="category-tag"></div>' +
         '<h1 class="item-name"></h1>' +
         '<div class="shelf-life">' +
           '<div class="value"></div>' +
@@ -199,7 +265,7 @@
         '<div class="choices">' +
           '<div class="choice">' +
             '<button class="choice-btn choice-btn--correct" aria-label="Верно">' +
-              '<svg width="28" height="28" viewBox="0 0 24 24" fill="none">' +
+              '<svg width="26" height="26" viewBox="0 0 24 24" fill="none">' +
                 '<path d="M4 12.5L9.5 18L20 6" stroke="oklch(48% 0.14 150)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>' +
               '</svg>' +
             '</button>' +
@@ -207,22 +273,35 @@
           '</div>' +
           '<div class="choice">' +
             '<button class="choice-btn choice-btn--wrong" aria-label="Не уверен(а)">' +
-              '<svg width="26" height="26" viewBox="0 0 24 24" fill="none">' +
+              '<svg width="24" height="24" viewBox="0 0 24 24" fill="none">' +
                 '<path d="M6 6L18 18M18 6L6 18" stroke="oklch(50% 0.19 25)" stroke-width="3" stroke-linecap="round"></path>' +
               '</svg>' +
             '</button>' +
             '<div class="choice-label">Не уверен(а)</div>' +
           '</div>' +
+          '<div class="choice">' +
+            '<button class="choice-btn choice-btn--absent" aria-label="Отсутствует">' +
+              '<svg width="24" height="24" viewBox="0 0 24 24" fill="none">' +
+                '<path d="M5 12H19" stroke="oklch(45% 0.01 55)" stroke-width="3" stroke-linecap="round"></path>' +
+              '</svg>' +
+            '</button>' +
+            '<div class="choice-label">Отсутствует</div>' +
+          '</div>' +
         '</div>';
 
-      card.querySelector('.item-name').textContent = item.name;
-      card.querySelector('.value').textContent = item.shelfLife;
-      card.querySelector('.label').textContent = item.unit;
+      card.querySelector('.category-tag').textContent = item.category;
+      var nameEl = card.querySelector('.item-name');
+      nameEl.textContent = item.name;
+      if (item.name.length > 40) nameEl.classList.add('item-name--long');
+      card.querySelector('.value').textContent = chipValue;
+      card.querySelector('.label').textContent = chipLabel;
 
-      card.querySelector('.choice-btn--correct').addEventListener('click', function () {
+      function next() {
         state = { index: (state.index + 1) % ITEMS.length, screen: 'quiz' };
         render();
-      });
+      }
+      card.querySelector('.choice-btn--correct').addEventListener('click', next);
+      card.querySelector('.choice-btn--absent').addEventListener('click', next);
       card.querySelector('.choice-btn--wrong').addEventListener('click', function () {
         state = { index: state.index, screen: 'instruction' };
         render();
@@ -230,10 +309,20 @@
     } else {
       card.innerHTML =
         '<div class="eyebrow">Подсказка</div>' +
-        '<h2 class="instruction-title">Как правильно промаркировать</h2>' +
-        '<p class="instruction-text">На этикетке указывают дату и время изготовления, а также дату и время, до которых десерт годен к продаже. Стикер клеят на крышку или боковую стенку контейнера так, чтобы его было видно, не открывая упаковку.</p>' +
-        '<p class="instruction-text">Если срок годности указан неверно, продукт могут списать раньше времени или, наоборот, продать просроченным. Точная маркировка защищает и гостя, и заведение.</p>' +
+        '<h2 class="instruction-title"></h2>' +
+        '<p class="instruction-text storage-text"></p>' +
+        '<p class="instruction-text marking-text"></p>' +
+        '<p class="instruction-text recipe-text" hidden></p>' +
         '<button class="primary-btn">Всё понятно</button>';
+
+      card.querySelector('.instruction-title').textContent = item.name;
+      card.querySelector('.storage-text').textContent = buildStorageText(item);
+      card.querySelector('.marking-text').textContent = buildMarkingText(item);
+      if (item.recipe) {
+        var recipeEl = card.querySelector('.recipe-text');
+        recipeEl.hidden = false;
+        recipeEl.innerHTML = '<b>Как готовить: </b>' + item.recipe;
+      }
 
       card.querySelector('.primary-btn').addEventListener('click', function () {
         state = { index: (state.index + 1) % ITEMS.length, screen: 'quiz' };
